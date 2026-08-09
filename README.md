@@ -1,65 +1,62 @@
-# Gestor de Tareas (Jira/Trello Style)
+📋 TaskFlow - Sistema Profesional de Gestión de Tareas
+📖 Resumen del Proyecto
+TaskFlow es una solución de software orientada a la gestión eficiente de proyectos y tareas. Diseñado para equipos que buscan un control de flujo de trabajo ágil, el sistema permite la creación, asignación y seguimiento de actividades mediante un modelo de datos robusto y escalable.
 
-Este es un proyecto de consola interactiva desarrollado en **Java**, utilizando Programación Orientada a Objetos (POO) y la biblioteca estándar `JOptionPane` para la interfaz de usuario. Simula el funcionamiento básico de sistemas de gestión de tareas como Jira o Trello.
+💡 Motivación
+La gestión de tareas en entornos educativos y de desarrollo inicial suele carecer de trazabilidad. Este proyecto nace con el objetivo de centralizar la información, eliminar la ambigüedad en las responsabilidades del equipo y proporcionar una herramienta que permite visualizar el progreso mediante estados definidos (To-Do, In Progress, Done).
 
-## Características Principales
+🏗️ Arquitectura del Sistema
+El sistema ha sido estructurado bajo un enfoque de Separación de Responsabilidades (SoC), dividiendo la lógica de la interfaz y la persistencia temporal:
 
-- **Gestión de Usuarios**: Permite registrar y listar los miembros del equipo que participarán en los proyectos.
-- **Gestión de Tareas**: Crea tareas con título, descripción y prioridad asignada, y asígnalas a los usuarios registrados.
-- **Prioridad de Tareas**: Las tareas se clasifican en tres niveles de prioridad: `ALTA`, `MEDIA`, y `BAJA`.
-- **Estados de Tareas**: Las tareas pueden transitar por los estados: `POR_REALIZAR` (To Do), `EN_PROCESO` (In Progress) y `FINALIZADO` (Done).
-- **Tablero Kanban**: Visualización de las tareas agrupadas por su estado actual.
-- **Vista de Usuario**: Visualiza las tareas asignadas a un usuario específico, ordenadas automáticamente por prioridad (de mayor a menor).
-- **Datos de Prueba**: Opción integrada para cargar datos de prueba instantáneamente y probar todas las funcionalidades.
+model/: Contiene las entidades principales (Task, User) y los enumerados (Priority, Status) que actúan como "fuente de verdad" para los estados y clasificaciones.
 
-## Estructura del Proyecto
+service/: Implementa la lógica de negocio en TaskManager, garantizando que la manipulación de datos sea centralizada y segura.
 
-El proyecto está estructurado utilizando los principios de la Programación Orientada a Objetos:
+App.java: Actúa como el controlador de entrada, gestionando la interacción con el usuario mediante JOptionPane para una experiencia visual o consola para debugging.
 
-- `src/model/`: Contiene las clases principales y modelos de datos.
-  - `User.java`: Representa a los usuarios del sistema.
-  - `Task.java`: Representa las tareas con sus propiedades y estado.
-  - `Status.java`: Enumerador para los estados de una tarea.
-  - `Priority.java`: Enumerador para los niveles de prioridad.
-- `src/service/`: Contiene la lógica de negocio.
-  - `TaskManager.java`: Clase encargada de administrar las colecciones de usuarios y tareas (usando `ArrayList`), así como filtrar y ordenar los datos.
-- `src/App.java`: Punto de entrada de la aplicación que contiene el menú interactivo con `JOptionPane`.
+🚀 Características Técnicas
+Gestión de Prioridades: Clasificación inteligente de tareas (Alta, Media, Baja).
 
-## Requisitos
+Asignación de Responsables: Vinculación directa entre entidades User y Task.
 
-- Java Development Kit (JDK) 11 o superior. (Probado en JDK 21)
+Control de Estados: Ciclo de vida completo para cada tarea.
 
-## Cómo Ejecutar el Proyecto
+Historial de Cambios: Implementación de Conventional Commits para una trazabilidad precisa de las contribuciones del equipo.
 
-Puedes ejecutar el proyecto desde cualquier entorno de desarrollo integrado (IDE) compatible con Java como IntelliJ IDEA, Eclipse, o VS Code.
+⚙️ Flujo de Operación
+Entrada: El usuario interactúa a través de una interfaz polimórfica (consola/visual).
 
-Si prefieres ejecutarlo desde la **línea de comandos / terminal**, sigue estos pasos:
+Procesamiento: TaskManager recibe las peticiones y actualiza el estado de las colecciones internas.
 
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/santiagoosorio0708e-wq/proyecto_java.git
-   ```
+Persistencia: Visualización en tiempo real del estado de los proyectos.
 
-2. Navega a la carpeta del proyecto:
-   ```bash
-   cd proyecto_java
-   ```
+🛠️ Tecnologías y Herramientas
+Lenguaje: Java SE
 
-3. Crea una carpeta `bin` para los archivos compilados:
-   ```bash
-   mkdir bin
-   ```
+IDE: Visual Studio Code
 
-4. Compila el código fuente:
-   ```bash
-   javac -d bin src/App.java src/model/*.java src/service/*.java
-   ```
+Control de Versiones: Git (GitHub)
 
-5. Ejecuta la aplicación:
-   ```bash
-   java -cp bin App
-   ```
+Estándares: Conventional Commits (feat, fix, docs, refactor)
 
-## Control de Versiones
+💻 Instrucciones de Instalación
+Bash
+# 1. Clonar el repositorio
+git clone https://github.com/santiagoosorio0708e-wq/proyecto_java.git
 
-Este proyecto utiliza [Conventional Commits](https://www.conventionalcommits.org/) para los mensajes de commit.
+# 2. Abrir en VS Code
+code proyecto_java
+
+# 3. Compilar y ejecutar
+# Localizar App.java en la carpeta src y ejecutar con el botón "Run"
+👥 Contribuciones
+Este proyecto es el resultado de un esfuerzo colaborativo.
+
+Santiago Osorio
+
+Daniel Jaimes Gamboa
+
+El desarrollo se ha regido bajo estrictas normas de versionado para asegurar la calidad del código entregado.
+
+📜 Licencia
+Este proyecto es de carácter académico.
