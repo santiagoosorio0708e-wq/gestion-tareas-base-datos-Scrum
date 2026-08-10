@@ -16,6 +16,8 @@ import java.util.List;
  * Interactúa con el TaskManager para gestionar usuarios y tareas.
  */
 public class App extends JFrame {
+    // CONEXIÓN CLAVE: Aquí unimos la Vista (App) con el Servicio (TaskManager).
+    // TaskManager se encarga de guardar y gestionar la lista real de usuarios y tareas.
     private TaskManager taskManager = new TaskManager();
     private JTabbedPane tabbedPane;
     
@@ -115,6 +117,9 @@ public class App extends JFrame {
             int option = JOptionPane.showConfirmDialog(this, message, "Nuevo Usuario", JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
                 if (!txtUser.getText().trim().isEmpty() && !txtName.getText().trim().isEmpty()) {
+                    // USO DEL MODELO Y SERVICIO: 
+                    // 1. Creamos un nuevo objeto del modelo User.
+                    // 2. Se lo pasamos al TaskManager para que lo guarde en la memoria central.
                     taskManager.addUser(new User(txtUser.getText().trim(), txtName.getText().trim()));
                     refreshUserTable();
                 } else {
@@ -179,6 +184,8 @@ public class App extends JFrame {
             int option = JOptionPane.showConfirmDialog(this, message, "Nueva Tarea", JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
                 if (!txtTitle.getText().trim().isEmpty()) {
+                    // CONEXIÓN CON MODELOS: Usamos la prioridad y el usuario seleccionados en la UI
+                    // para construir un objeto complejo (Task) y guardarlo mediante el gestor.
                     Task task = new Task(
                         txtTitle.getText().trim(),
                         txtDesc.getText().trim(),
