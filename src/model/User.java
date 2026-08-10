@@ -2,6 +2,7 @@ package model;
 
 import java.util.Objects;
 
+// Clase User (Modelo): Representa a un usuario del sistema (como un desarrollador asignado).
 public class User {
     private String username;
     private String name;
@@ -27,6 +28,7 @@ public class User {
         this.name = name;
     }
 
+    // equals y hashCode: Son fundamentales para evitar usuarios duplicados y comparar objetos en base al username.
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

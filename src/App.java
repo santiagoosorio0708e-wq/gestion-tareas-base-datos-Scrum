@@ -10,6 +10,7 @@ import java.util.List;
 public class App {
     private static TaskManager taskManager = new TaskManager();
 
+    // Método principal (entry point): Aquí inicia la ejecución de nuestra aplicación de interfaz gráfica sencilla (Swing).
     public static void main(String[] args) {
         try {
             // Set System L&F for better looks
@@ -32,6 +33,7 @@ public class App {
                     "Menú Principal", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
                     null, options, options[0]);
 
+            // Menú principal: Usamos un switch para manejar las diferentes opciones seleccionadas por el usuario.
             switch (choice) {
                 case 0:
                     manageUsers();
@@ -56,6 +58,7 @@ public class App {
         }
     }
 
+    // Módulo de Usuarios: Permite registrar nuevos usuarios o listar los ya existentes.
     private static void manageUsers() {
         String[] options = {"Crear Usuario", "Listar Usuarios", "Volver"};
         int choice = JOptionPane.showOptionDialog(null, "Gestión de Usuarios",
@@ -84,6 +87,7 @@ public class App {
         }
     }
 
+    // Módulo de Tareas: Lógica para registrar nuevas tareas asignadas a usuarios y actualizar su estado.
     private static void manageTasks() {
         String[] options = {"Crear Tarea", "Cambiar Estado de Tarea", "Volver"};
         int choice = JOptionPane.showOptionDialog(null, "Gestión de Tareas",
@@ -137,6 +141,7 @@ public class App {
         }
     }
 
+    // Tablero Kanban: Recorre todos los estados posibles y muestra las tareas agrupadas por estado.
     private static void showKanbanBoard() {
         StringBuilder sb = new StringBuilder();
         for (Status status : Status.values()) {

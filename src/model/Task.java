@@ -1,5 +1,6 @@
 package model;
 
+// Clase Task (Modelo): Representa una Tarea en nuestro sistema. Contiene propiedades, estado y referencias (Usuario).
 public class Task {
     private static int nextId = 1;
 
@@ -10,6 +11,7 @@ public class Task {
     private Status status;
     private User assignedUser;
 
+    // Constructor: Inicializa una tarea nueva. Toda tarea nace por defecto en estado 'POR_REALIZAR'.
     public Task(String title, String description, Priority priority, User assignedUser) {
         this.id = nextId++;
         this.title = title;

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// TaskManager: Esta clase actúa como nuestro 'Controlador' (o Service). Centraliza la lógica de negocio y colecciones.
 public class TaskManager {
     private List<User> users;
     private List<Task> tasks;
@@ -54,12 +55,14 @@ public class TaskManager {
         return null;
     }
 
+    // Filtro por Estado: Utilizamos Streams de Java 8+ para filtrar ágilmente las tareas según su estado (Kanban).
     public List<Task> getTasksByStatus(Status status) {
         return tasks.stream()
                 .filter(task -> task.getStatus() == status)
                 .collect(Collectors.toList());
     }
 
+    // Ordenamiento y Filtrado: Retorna tareas de un usuario específico, ordenadas por Prioridad usando comparadores y Streams.
     public List<Task> getTasksByUserOrderedByPriority(User user) {
         return tasks.stream()
                 .filter(task -> task.getAssignedUser() != null && task.getAssignedUser().equals(user))
