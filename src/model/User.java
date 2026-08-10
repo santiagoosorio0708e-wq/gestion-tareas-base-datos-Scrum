@@ -2,7 +2,6 @@ package model;
 
 import java.util.Objects;
 
-// Clase User (Modelo): Representa a un usuario del sistema (como un desarrollador asignado).
 public class User {
     private String username;
     private String name;

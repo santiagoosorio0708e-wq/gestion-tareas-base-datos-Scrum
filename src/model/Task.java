@@ -1,6 +1,5 @@
 package model;
 
-// Clase Task (Modelo): Representa una Tarea en nuestro sistema. Contiene propiedades, estado y referencias (Usuario).
 public class Task {
     private static int nextId = 1;
 

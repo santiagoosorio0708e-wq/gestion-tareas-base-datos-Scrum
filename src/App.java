@@ -10,7 +10,6 @@ import java.util.List;
 public class App {
     private static TaskManager taskManager = new TaskManager();
 
-    // Método principal (entry point): Aquí inicia la ejecución de nuestra aplicación de interfaz gráfica sencilla (Swing).
     public static void main(String[] args) {
         try {
             // Set System L&F for better looks

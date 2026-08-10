@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TaskManager: Esta clase actúa como nuestro 'Controlador' (o Service). Centraliza la lógica de negocio y colecciones.
 public class TaskManager {
     private List<User> users;
     private List<Task> tasks;
