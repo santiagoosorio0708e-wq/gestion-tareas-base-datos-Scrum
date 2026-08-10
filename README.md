@@ -23,6 +23,21 @@ TaskFlow es una solucion de software orientada a la gestion eficiente de proyect
 ## Arquitectura del Sistema
 El sistema ha sido estructurado bajo el principio de Separacion de Responsabilidades (SoC), dividiendo la logica de negocio y la interfaz de usuario:
 
+```text
+proyecto_java/
+├── bin/                 # Archivos compilados (.class)
+├── src/                 # Codigo fuente
+│   ├── model/           # Entidades y enumeraciones
+│   │   ├── Priority.java
+│   │   ├── Status.java
+│   │   ├── Task.java
+│   │   └── User.java
+│   ├── service/         # Logica de negocio
+│   │   └── TaskManager.java
+│   └── App.java         # Controlador Principal (GUI)
+└── README.md
+```
+
 - model/: Contiene las entidades principales (Task, User) y los enumerados (Priority, Status) que actuan como fuente unica de verdad para clasificaciones.
 - service/: Implementa la logica de negocio en la clase TaskManager, centralizando la manipulacion, guardado y filtrado de datos.
 - App.java: Actua como el controlador principal de la Interfaz Grafica (Vista), agrupando la logica de componentes graficos y enlazando los eventos de los usuarios con el servicio.
