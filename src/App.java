@@ -37,9 +37,13 @@ public class App extends JFrame {
      */
     public App() {
         setTitle("Gestor de Tareas (Jira/Trello Style)");
-        setSize(900, 600);
+        
+        // DISEÑO: Define las dimensiones iniciales de la ventana en píxeles (ancho, alto).
+        setSize(900, 600); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Centrar la ventana en pantalla
+        
+        // DISEÑO: Centra la ventana exactamente en el medio de la pantalla al abrirla.
+        setLocationRelativeTo(null); 
         
         // Cargar datos de prueba por defecto para visualizar la app
         loadTestData();
@@ -74,7 +78,6 @@ public class App extends JFrame {
                 // Si el carácter ingresado es un número, consumimos el evento (no se escribe)
                 if (Character.isDigit(c)) {
                     e.consume();
-                    // Opcional: Podríamos mostrar un mensaje o sonido aquí
                 }
             }
         });
@@ -109,9 +112,12 @@ public class App extends JFrame {
      * Incluye una tabla para listarlos y un botón para crear nuevos.
      */
     private JPanel createUserPanel() {
+        // DISEÑO: BorderLayout divide la pantalla en 5 zonas (Norte, Sur, Centro, Este, Oeste).
+        // Usamos esto para poner la barra de botones fija arriba (NORTH) y que la tabla ocupe todo el resto (CENTER).
         JPanel panel = new JPanel(new BorderLayout());
         
-        // Barra superior con botones de acción
+        // DISEÑO: FlowLayout posiciona los elementos en línea, uno tras otro. 
+        // El parámetro LEFT hace que los botones se peguen al lado izquierdo en lugar de centrarse.
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnAddUser = new JButton("Crear Usuario");
         topPanel.add(btnAddUser);
@@ -124,7 +130,10 @@ public class App extends JFrame {
             public boolean isCellEditable(int row, int column) { return false; } // Celdas no editables directamente
         };
         JTable userTable = new JTable(userTableModel);
+        
+        // DISEÑO: Aumentamos un poco la altura de cada fila de la tabla para que el texto respire y no se vea amontonado.
         userTable.setRowHeight(25);
+        
         panel.add(new JScrollPane(userTable), BorderLayout.CENTER);
         
         refreshUserTable(); // Llenar la tabla inicialmente
@@ -175,7 +184,6 @@ public class App extends JFrame {
     private JPanel createTaskPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         
-        // Barra superior con botones para crear y editar tareas
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnAddTask = new JButton("Crear Tarea");
         JButton btnChangeStatus = new JButton("Cambiar Estado");
@@ -190,6 +198,8 @@ public class App extends JFrame {
             public boolean isCellEditable(int row, int column) { return false; }
         };
         JTable taskTable = new JTable(taskTableModel);
+        
+        // DISEÑO: Ajustamos altura de las filas para mejorar la lectura.
         taskTable.setRowHeight(25);
         panel.add(new JScrollPane(taskTable), BorderLayout.CENTER);
         
@@ -280,7 +290,11 @@ public class App extends JFrame {
      * Crea el Tablero Kanban, que es una vista de 3 columnas para organizar visualmente las tareas por estado.
      */
     private JPanel createKanbanPanel() {
-        JPanel panel = new JPanel(new GridLayout(1, 3, 10, 10)); // Grid de 1 fila, 3 columnas
+        // DISEÑO: GridLayout crea una cuadrícula perfecta. Aquí indicamos: 1 fila, 3 columnas.
+        // Los dos "10" finales son los píxeles de separación (espacio vacío) horizontal y vertical entre columnas.
+        JPanel panel = new JPanel(new GridLayout(1, 3, 10, 10)); 
+        
+        // DISEÑO: Añade un margen invisible (padding) alrededor de las tres columnas, para que no toquen los bordes de la pantalla.
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         // Inicializar cada columna
@@ -300,14 +314,23 @@ public class App extends JFrame {
      */
     private JPanel createKanbanColumn(String title) {
         JPanel colPanel = new JPanel(new BorderLayout());
-        colPanel.setBorder(BorderFactory.createTitledBorder(title)); // Borde con título
+        
+        // DISEÑO: Dibuja un rectángulo gris alrededor del panel y le incrusta el título en la línea superior (como una caja etiquetada).
+        colPanel.setBorder(BorderFactory.createTitledBorder(title)); 
         
         JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); // Apilar tarjetas verticalmente
+        
+        // DISEÑO: BoxLayout organiza los elementos de forma estricta. Y_AXIS obliga a que todas las tarjetas se apilen verticalmente, una debajo de otra.
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); 
+        
+        // DISEÑO: Fondo blanco para que haya un contraste claro con las tarjetas de tareas grises.
         contentPanel.setBackground(Color.WHITE);
         
         JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Scroll más suave
+        
+        // DISEÑO: Aumenta la cantidad de píxeles que se mueven al usar la rueda del ratón, haciendo el "scroll" mucho más rápido y natural.
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); 
+        
         colPanel.add(scrollPane, BorderLayout.CENTER);
         
         return colPanel;
@@ -336,10 +359,15 @@ public class App extends JFrame {
         for (Task t : tasks) {
             // Crear una "tarjeta" visual para cada tarea
             JPanel card = new JPanel(new BorderLayout());
+            
+            // DISEÑO: CompoundBorder mezcla dos bordes. Por fuera dibujamos una línea gris fina (LineBorder),
+            // y por dentro dejamos un margen vacío de 10px (EmptyBorder) para que las letras no se peguen a la línea gris.
             card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
             ));
+            
+            // DISEÑO: Le damos un color RGB (Rojo, Verde, Azul) personalizado para que parezca un gris/azulado muy tenue y elegante.
             card.setBackground(new Color(245, 245, 250));
             card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
             
@@ -350,7 +378,9 @@ public class App extends JFrame {
             card.add(lblDetails, BorderLayout.SOUTH);
             
             contentPanel.add(card);
-            contentPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Espacio entre tarjetas
+            
+            // DISEÑO: RigidArea funciona como un "ladrillo transparente". Lo ponemos debajo de cada tarjeta para forzar un espacio en blanco de 10 píxeles entre ellas.
+            contentPanel.add(Box.createRigidArea(new Dimension(0, 10))); 
         }
         
         // Actualizar la interfaz
@@ -377,8 +407,14 @@ public class App extends JFrame {
         // Área de texto para mostrar las tareas formateadas
         JTextArea txtArea = new JTextArea();
         txtArea.setEditable(false);
+        
+        // DISEÑO: "Monospaced" es una tipografía tipo máquina de escribir donde cada letra mide exactamente lo mismo. 
+        // Esto es ideal para que las listas y tablas de texto plano se alineen perfectamente sin torcerse.
         txtArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        
+        // DISEÑO: Agrega margen interior (padding) dentro de la caja de texto.
         txtArea.setMargin(new Insets(10, 10, 10, 10));
+        
         panel.add(new JScrollPane(txtArea), BorderLayout.CENTER);
         
         // Listener para refrescar la lista desplegable (combo box) al seleccionar esta pestaña
@@ -422,7 +458,8 @@ public class App extends JFrame {
      */
     public static void main(String[] args) {
         try {
-            // Aplicar el LookAndFeel del sistema operativo para que se vea nativo
+            // DISEÑO: El "Look And Feel" le dice a la app que no use los colores y botones antiguos de Java por defecto (Metal), 
+            // sino que intente imitar el aspecto visual del sistema operativo donde se ejecuta (botones estilo Windows si estás en Windows).
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
