@@ -5,185 +5,49 @@ import model.User;
 import service.TaskManager;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class App {
-    private static TaskManager taskManager = new TaskManager();
-
-    public static void main(String[] args) {
-        try {
-            // Set System L&F for better looks
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            // Ignore
-        }
-
-        while (true) {
-            String[] options = {
-                    "Gestionar Usuarios",
-                    "Gestionar Tareas",
-                    "Tablero Kanban (Estado)",
-                    "Mis Tareas",
-                    "Cargar Datos de Prueba",
-                    "Salir"
-            };
-
-            int choice = JOptionPane.showOptionDialog(null, "Gestor de Tareas (Jira/Trello Style)",
-                    "Menú Principal", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
-                    null, options, options[0]);
-
-            // Menú principal: Usamos un switch para manejar las diferentes opciones seleccionadas por el usuario.
-            switch (choice) {
-                case 0:
-                    manageUsers();
-                    break;
-                case 1:
-                    manageTasks();
-                    break;
-                case 2:
-                    showKanbanBoard();
-                    break;
-                case 3:
-                    showUserTasks();
-                    break;
-                case 4:
-                    loadTestData();
-                    break;
-                case 5:
-                case JOptionPane.CLOSED_OPTION:
-                    System.exit(0);
-                    break;
-            }
-        }
-    }
-
-    // Módulo de Usuarios: Permite registrar nuevos usuarios o listar los ya existentes.
-    private static void manageUsers() {
-        String[] options = {"Crear Usuario", "Listar Usuarios", "Volver"};
-        int choice = JOptionPane.showOptionDialog(null, "Gestión de Usuarios",
-                "Usuarios", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                null, options, options[0]);
-
-        if (choice == 0) {
-            String username = JOptionPane.showInputDialog("Ingrese el username:");
-            if (username == null || username.trim().isEmpty()) return;
-            String name = JOptionPane.showInputDialog("Ingrese el nombre completo:");
-            if (name == null || name.trim().isEmpty()) return;
-            
-            taskManager.addUser(new User(username, name));
-            JOptionPane.showMessageDialog(null, "Usuario creado exitosamente.");
-        } else if (choice == 1) {
-            List<User> users = taskManager.getUsers();
-            if (users.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "No hay usuarios registrados.");
-            } else {
-                StringBuilder sb = new StringBuilder("Usuarios:\n");
-                for (User u : users) {
-                    sb.append("- ").append(u.toString()).append("\n");
-                }
-                JOptionPane.showMessageDialog(null, sb.toString());
-            }
-        }
-    }
-
-    // Módulo de Tareas: Lógica para registrar nuevas tareas asignadas a usuarios y actualizar su estado.
-    private static void manageTasks() {
-        String[] options = {"Crear Tarea", "Cambiar Estado de Tarea", "Volver"};
-        int choice = JOptionPane.showOptionDialog(null, "Gestión de Tareas",
-                "Tareas", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                null, options, options[0]);
-
-        if (choice == 0) {
-            if (taskManager.getUsers().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Debe crear al menos un usuario primero.");
-                return;
-            }
-
-            String title = JOptionPane.showInputDialog("Título de la tarea:");
-            if (title == null || title.trim().isEmpty()) return;
-
-            String description = JOptionPane.showInputDialog("Descripción de la tarea:");
-            if (description == null || description.trim().isEmpty()) return;
-
-            Priority[] priorities = Priority.values();
-            Priority priority = (Priority) JOptionPane.showInputDialog(null, "Seleccione la prioridad:",
-                    "Prioridad", JOptionPane.QUESTION_MESSAGE, null, priorities, priorities[0]);
-            if (priority == null) return;
-
-            List<User> users = taskManager.getUsers();
-            User user = (User) JOptionPane.showInputDialog(null, "Asignar a usuario:",
-                    "Asignación", JOptionPane.QUESTION_MESSAGE, null, users.toArray(), users.get(0));
-            if (user == null) return;
-
-            Task task = new Task(title, description, priority, user);
-            taskManager.addTask(task);
-            JOptionPane.showMessageDialog(null, "Tarea creada exitosamente. ID: " + task.getId());
-            
-        } else if (choice == 1) {
-            List<Task> tasks = taskManager.getTasks();
-            if (tasks.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "No hay tareas registradas.");
-                return;
-            }
-
-            Task task = (Task) JOptionPane.showInputDialog(null, "Seleccione la tarea a modificar:",
-                    "Cambiar Estado", JOptionPane.QUESTION_MESSAGE, null, tasks.toArray(), tasks.get(0));
-            if (task == null) return;
-
-            Status[] statuses = Status.values();
-            Status newStatus = (Status) JOptionPane.showInputDialog(null, "Seleccione el nuevo estado:",
-                    "Nuevo Estado", JOptionPane.QUESTION_MESSAGE, null, statuses, task.getStatus());
-            if (newStatus != null) {
-                task.setStatus(newStatus);
-                JOptionPane.showMessageDialog(null, "Estado actualizado exitosamente.");
-            }
-        }
-    }
-
-    // Tablero Kanban: Recorre todos los estados posibles y muestra las tareas agrupadas por estado.
-    private static void showKanbanBoard() {
-        StringBuilder sb = new StringBuilder();
-        for (Status status : Status.values()) {
-            sb.append("--- ").append(status.getDescription().toUpperCase()).append(" ---\n");
-            List<Task> tasksInStatus = taskManager.getTasksByStatus(status);
-            if (tasksInStatus.isEmpty()) {
-                sb.append("  (Vacío)\n");
-            } else {
-                for (Task t : tasksInStatus) {
-                    sb.append("  - [").append(t.getPriority()).append("] ").append(t.getTitle())
-                            .append(" (").append(t.getAssignedUser().getUsername()).append(")\n");
-                }
-            }
-            sb.append("\n");
-        }
-        JOptionPane.showMessageDialog(null, sb.toString(), "Tablero Kanban", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private static void showUserTasks() {
-        List<User> users = taskManager.getUsers();
-        if (users.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No hay usuarios registrados.");
-            return;
-        }
-
-        User user = (User) JOptionPane.showInputDialog(null, "Seleccione un usuario:",
-                "Mis Tareas", JOptionPane.QUESTION_MESSAGE, null, users.toArray(), users.get(0));
+public class App extends JFrame {
+    private TaskManager taskManager = new TaskManager();
+    private JTabbedPane tabbedPane;
+    
+    // Models for tables to refresh data
+    private DefaultTableModel userTableModel;
+    private DefaultTableModel taskTableModel;
+    
+    // Panels for Kanban
+    private JPanel kanbanTodoPanel;
+    private JPanel kanbanInProgressPanel;
+    private JPanel kanbanDonePanel;
+    
+    public App() {
+        setTitle("Gestor de Tareas (Jira/Trello Style)");
+        setSize(900, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Centrar en pantalla
         
-        if (user != null) {
-            List<Task> userTasks = taskManager.getTasksByUserOrderedByPriority(user);
-            if (userTasks.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "El usuario no tiene tareas asignadas.");
-            } else {
-                StringBuilder sb = new StringBuilder("Tareas de " + user.getName() + " (Ordenadas por Prioridad Alta->Baja):\n\n");
-                for (Task t : userTasks) {
-                    sb.append(t.toString()).append("\n");
-                }
-                JOptionPane.showMessageDialog(null, sb.toString(), "Tareas Asignadas", JOptionPane.INFORMATION_MESSAGE);
-            }
-        }
+        // Cargar datos de prueba por defecto
+        loadTestData();
+        
+        tabbedPane = new JTabbedPane();
+        
+        tabbedPane.addTab("Usuarios", createUserPanel());
+        tabbedPane.addTab("Tareas", createTaskPanel());
+        tabbedPane.addTab("Tablero Kanban", createKanbanPanel());
+        tabbedPane.addTab("Mis Tareas", createMyTasksPanel());
+        
+        // Listener para refrescar el Kanban y otras vistas al cambiar de pestaña
+        tabbedPane.addChangeListener(e -> {
+            refreshKanbanBoard();
+        });
+        
+        add(tabbedPane);
     }
-
-    private static void loadTestData() {
+    
+    private void loadTestData() {
         User u1 = new User("dev1", "Alice Smith");
         User u2 = new User("dev2", "Bob Johnson");
         taskManager.addUser(u1);
@@ -202,7 +66,281 @@ public class App {
         taskManager.addTask(t2);
         taskManager.addTask(t3);
         taskManager.addTask(t4);
+    }
+    
+    private JPanel createUserPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        
+        // Barra superior con botones
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton btnAddUser = new JButton("Crear Usuario");
+        topPanel.add(btnAddUser);
+        panel.add(topPanel, BorderLayout.NORTH);
+        
+        // Tabla de usuarios
+        String[] columns = {"Username", "Nombre Completo"};
+        userTableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        JTable userTable = new JTable(userTableModel);
+        userTable.setRowHeight(25);
+        panel.add(new JScrollPane(userTable), BorderLayout.CENTER);
+        
+        refreshUserTable();
+        
+        // Acción para crear usuario
+        btnAddUser.addActionListener(e -> {
+            JTextField txtUser = new JTextField();
+            JTextField txtName = new JTextField();
+            Object[] message = {
+                "Username:", txtUser,
+                "Nombre Completo:", txtName
+            };
+            
+            int option = JOptionPane.showConfirmDialog(this, message, "Nuevo Usuario", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                if (!txtUser.getText().trim().isEmpty() && !txtName.getText().trim().isEmpty()) {
+                    taskManager.addUser(new User(txtUser.getText().trim(), txtName.getText().trim()));
+                    refreshUserTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Ambos campos son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        
+        return panel;
+    }
+    
+    private void refreshUserTable() {
+        userTableModel.setRowCount(0);
+        for (User u : taskManager.getUsers()) {
+            userTableModel.addRow(new Object[]{u.getUsername(), u.getName()});
+        }
+    }
+    
+    private JPanel createTaskPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton btnAddTask = new JButton("Crear Tarea");
+        JButton btnChangeStatus = new JButton("Cambiar Estado");
+        topPanel.add(btnAddTask);
+        topPanel.add(btnChangeStatus);
+        panel.add(topPanel, BorderLayout.NORTH);
+        
+        String[] columns = {"ID", "Título", "Descripción", "Prioridad", "Usuario", "Estado"};
+        taskTableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        JTable taskTable = new JTable(taskTableModel);
+        taskTable.setRowHeight(25);
+        panel.add(new JScrollPane(taskTable), BorderLayout.CENTER);
+        
+        refreshTaskTable();
+        
+        btnAddTask.addActionListener(e -> {
+            if (taskManager.getUsers().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Debe crear al menos un usuario primero.");
+                return;
+            }
+            
+            JTextField txtTitle = new JTextField();
+            JTextField txtDesc = new JTextField();
+            JComboBox<Priority> cbPriority = new JComboBox<>(Priority.values());
+            JComboBox<User> cbUser = new JComboBox<>(taskManager.getUsers().toArray(new User[0]));
+            
+            Object[] message = {
+                "Título:", txtTitle,
+                "Descripción:", txtDesc,
+                "Prioridad:", cbPriority,
+                "Asignar a:", cbUser
+            };
+            
+            int option = JOptionPane.showConfirmDialog(this, message, "Nueva Tarea", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                if (!txtTitle.getText().trim().isEmpty()) {
+                    Task task = new Task(
+                        txtTitle.getText().trim(),
+                        txtDesc.getText().trim(),
+                        (Priority) cbPriority.getSelectedItem(),
+                        (User) cbUser.getSelectedItem()
+                    );
+                    taskManager.addTask(task);
+                    refreshTaskTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "El título es obligatorio", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        
+        btnChangeStatus.addActionListener(e -> {
+            int selectedRow = taskTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Seleccione una tarea de la tabla primero.");
+                return;
+            }
+            
+            int taskId = (int) taskTableModel.getValueAt(selectedRow, 0);
+            Task task = taskManager.getTaskById(taskId);
+            
+            if (task != null) {
+                JComboBox<Status> cbStatus = new JComboBox<>(Status.values());
+                cbStatus.setSelectedItem(task.getStatus());
+                
+                Object[] message = { "Nuevo Estado:", cbStatus };
+                int option = JOptionPane.showConfirmDialog(this, message, "Cambiar Estado", JOptionPane.OK_CANCEL_OPTION);
+                if (option == JOptionPane.OK_OPTION) {
+                    task.setStatus((Status) cbStatus.getSelectedItem());
+                    refreshTaskTable();
+                }
+            }
+        });
+        
+        return panel;
+    }
+    
+    private void refreshTaskTable() {
+        taskTableModel.setRowCount(0);
+        for (Task t : taskManager.getTasks()) {
+            taskTableModel.addRow(new Object[]{
+                t.getId(), t.getTitle(), t.getDescription(), t.getPriority(), 
+                t.getAssignedUser().getUsername(), t.getStatus().getDescription()
+            });
+        }
+    }
+    
+    private JPanel createKanbanPanel() {
+        JPanel panel = new JPanel(new GridLayout(1, 3, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        kanbanTodoPanel = createKanbanColumn("POR REALIZAR");
+        kanbanInProgressPanel = createKanbanColumn("EN PROCESO");
+        kanbanDonePanel = createKanbanColumn("FINALIZADO");
+        
+        panel.add(kanbanTodoPanel);
+        panel.add(kanbanInProgressPanel);
+        panel.add(kanbanDonePanel);
+        
+        return panel;
+    }
+    
+    private JPanel createKanbanColumn(String title) {
+        JPanel colPanel = new JPanel(new BorderLayout());
+        colPanel.setBorder(BorderFactory.createTitledBorder(title));
+        
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(Color.WHITE);
+        
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        colPanel.add(scrollPane, BorderLayout.CENTER);
+        
+        return colPanel;
+    }
+    
+    private void refreshKanbanBoard() {
+        fillKanbanColumn(kanbanTodoPanel, Status.POR_REALIZAR);
+        fillKanbanColumn(kanbanInProgressPanel, Status.EN_PROCESO);
+        fillKanbanColumn(kanbanDonePanel, Status.FINALIZADO);
+    }
+    
+    private void fillKanbanColumn(JPanel columnPanel, Status status) {
+        // Obtenemos el content panel dentro del scroll pane
+        JScrollPane scrollPane = (JScrollPane) columnPanel.getComponent(0);
+        JPanel contentPanel = (JPanel) scrollPane.getViewport().getView();
+        
+        contentPanel.removeAll();
+        
+        List<Task> tasks = taskManager.getTasksByStatus(status);
+        for (Task t : tasks) {
+            JPanel card = new JPanel(new BorderLayout());
+            card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+            ));
+            card.setBackground(new Color(245, 245, 250));
+            card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+            
+            JLabel lblTitle = new JLabel("<html><b>" + t.getTitle() + "</b></html>");
+            JLabel lblDetails = new JLabel(t.getAssignedUser().getUsername() + " | Prioridad: " + t.getPriority());
+            
+            card.add(lblTitle, BorderLayout.NORTH);
+            card.add(lblDetails, BorderLayout.SOUTH);
+            
+            contentPanel.add(card);
+            contentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+        
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+    
+    private JPanel createMyTasksPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topPanel.add(new JLabel("Seleccionar Usuario:"));
+        
+        JComboBox<User> cbUser = new JComboBox<>();
+        JButton btnView = new JButton("Ver Tareas");
+        
+        topPanel.add(cbUser);
+        topPanel.add(btnView);
+        panel.add(topPanel, BorderLayout.NORTH);
+        
+        JTextArea txtArea = new JTextArea();
+        txtArea.setEditable(false);
+        txtArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        txtArea.setMargin(new Insets(10, 10, 10, 10));
+        panel.add(new JScrollPane(txtArea), BorderLayout.CENTER);
+        
+        // Listener para refrescar el combo box al seleccionar esta pestaña
+        tabbedPane.addChangeListener(e -> {
+            if (tabbedPane.getSelectedComponent() == panel) {
+                User selected = (User) cbUser.getSelectedItem();
+                cbUser.removeAllItems();
+                for (User u : taskManager.getUsers()) {
+                    cbUser.addItem(u);
+                }
+                if (selected != null) {
+                    cbUser.setSelectedItem(selected);
+                }
+            }
+        });
+        
+        btnView.addActionListener(e -> {
+            User selected = (User) cbUser.getSelectedItem();
+            if (selected != null) {
+                List<Task> userTasks = taskManager.getTasksByUserOrderedByPriority(selected);
+                StringBuilder sb = new StringBuilder();
+                if (userTasks.isEmpty()) {
+                    sb.append("No hay tareas asignadas para este usuario.\n");
+                } else {
+                    sb.append("Tareas de ").append(selected.getName()).append(":\n");
+                    sb.append("--------------------------------------------------\n\n");
+                    for (Task t : userTasks) {
+                        sb.append(t.toString()).append("\n");
+                    }
+                }
+                txtArea.setText(sb.toString());
+            }
+        });
+        
+        return panel;
+    }
 
-        JOptionPane.showMessageDialog(null, "Datos de prueba cargados.");
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        SwingUtilities.invokeLater(() -> {
+            new App().setVisible(true);
+        });
     }
 }
