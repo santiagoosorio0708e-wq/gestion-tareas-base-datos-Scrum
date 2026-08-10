@@ -30,12 +30,10 @@ public class TaskManager {
     }
 
     public User getUserByUsername(String username) {
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-        return null;
+        return users.stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
     }
 
     public void addTask(Task task) {
@@ -47,12 +45,10 @@ public class TaskManager {
     }
 
     public Task getTaskById(int id) {
-        for (Task task : tasks) {
-            if (task.getId() == id) {
-                return task;
-            }
-        }
-        return null;
+        return tasks.stream()
+                .filter(task -> task.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
 
     // Filtro por Estado: Utilizamos Streams de Java 8+ para filtrar ágilmente las tareas según su estado (Kanban).
