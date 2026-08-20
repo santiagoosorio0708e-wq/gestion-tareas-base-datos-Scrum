@@ -1,27 +1,30 @@
 import model.Priority;
 import model.Status;
 import model.Task;
-import model.User;
+import model.Person;
+import model.TypePerson;
 import service.TaskManager;
 
+import com.formdev.flatlaf.FlatIntelliJLaf;
+
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
- * Clase principal de la aplicación que extiende JFrame para proveer una Interfaz Gráfica de Usuario (GUI).
- * Interactúa con el TaskManager para gestionar usuarios y tareas.
+ * Clase principal de la aplicación con GUI mejorada usando FlatLaf.
  */
 public class App extends JFrame {
-    // CONEXIÓN CLAVE: Aquí unimos la Vista (App) con el Servicio (TaskManager).
-    // TaskManager se encarga de guardar y gestionar la lista real de usuarios y tareas.
-    private TaskManager taskManager = new TaskManager();
+    private TaskManager taskManager;
     private JTabbedPane tabbedPane;
     
-    private DefaultTableModel userTableModel;
+    private DefaultTableModel personTableModel;
     private DefaultTableModel taskTableModel;
     
     private JPanel kanbanTodoPanel;
@@ -29,27 +32,48 @@ public class App extends JFrame {
     private JPanel kanbanDonePanel;
     
     public App() {
-        setTitle("Gestor de Tareas (Jira/Trello Style)");
-        setSize(900, 600); 
+        taskManager = new TaskManager(); 
+        
+        setTitle("Gestor de Tareas Scrum Pro");
+        setSize(1000, 700); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); 
         
-        loadTestData();
+        // Estilo general de la aplicación
+        setFontsAndStyles();
         
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Usuarios", createUserPanel());
-        tabbedPane.addTab("Tareas", createTaskPanel());
-        tabbedPane.addTab("Tablero Kanban", createKanbanPanel());
-        tabbedPane.addTab("Mis Tareas", createMyTasksPanel());
+        tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tabbedPane.addTab("👥 Usuarios", createPersonPanel());
+        tabbedPane.addTab("📝 Tareas", createTaskPanel());
+        tabbedPane.addTab("📋 Tablero Kanban", createKanbanPanel());
+        tabbedPane.addTab("👤 Mis Tareas", createMyTasksPanel());
         
         tabbedPane.addChangeListener(e -> refreshKanbanBoard());
         
-        add(tabbedPane);
+        // Fondo principal
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        
+        add(mainPanel);
     }
     
-    /**
-     * Intercepta la entrada del teclado para evitar la escritura de caracteres numéricos.
-     */
+    private void setFontsAndStyles() {
+        UIManager.put("Button.font", new Font("Segoe UI", Font.BOLD, 13));
+        UIManager.put("Label.font", new Font("Segoe UI", Font.PLAIN, 14));
+        UIManager.put("Table.font", new Font("Segoe UI", Font.PLAIN, 13));
+        UIManager.put("TableHeader.font", new Font("Segoe UI", Font.BOLD, 14));
+        UIManager.put("ComboBox.font", new Font("Segoe UI", Font.PLAIN, 14));
+        UIManager.put("TextField.font", new Font("Segoe UI", Font.PLAIN, 14));
+        
+        // Botones más estilizados
+        UIManager.put("Button.arc", 10);
+        UIManager.put("Component.arc", 10);
+        UIManager.put("ProgressBar.arc", 10);
+        UIManager.put("TextComponent.arc", 10);
+    }
+    
     private void preventNumbers(JTextField textField) {
         textField.addKeyListener(new KeyAdapter() {
             @Override
@@ -61,69 +85,73 @@ public class App extends JFrame {
         });
     }
     
-    private void loadTestData() {
-        User u1 = new User("dev1", "Alice Smith");
-        User u2 = new User("dev2", "Bob Johnson");
-        taskManager.addUser(u1);
-        taskManager.addUser(u2);
-
-        Task t1 = new Task("Configurar DB", "Instalar PostgreSQL y crear schemas", Priority.ALTA, u1);
-        Task t2 = new Task("Crear vistas", "Vistas SQL de ventas", Priority.MEDIA, u1);
-        Task t3 = new Task("Diseñar Login", "UI de login con Swing", Priority.ALTA, u2);
-        Task t4 = new Task("Documentación", "Escribir README", Priority.BAJA, u2);
+    private void styleTable(JTable table) {
+        table.setRowHeight(35);
+        table.setShowGrid(false);
+        table.setShowHorizontalLines(true);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setSelectionBackground(new Color(200, 225, 255));
+        table.setSelectionForeground(Color.BLACK);
         
-        t1.setStatus(Status.EN_PROCESO);
-        t2.setStatus(Status.POR_REALIZAR);
-        t3.setStatus(Status.FINALIZADO);
-
-        taskManager.addTask(t1);
-        taskManager.addTask(t2);
-        taskManager.addTask(t3);
-        taskManager.addTask(t4);
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(245, 245, 250));
+        header.setForeground(new Color(50, 50, 50));
+        header.setPreferredSize(new Dimension(100, 40));
+        
+        // Centrar contenido de celdas
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for(int i=0; i<table.getColumnCount(); i++){
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
     
-    private JPanel createUserPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+    private JPanel createPersonPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
         
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton btnAddUser = new JButton("Crear Usuario");
-        topPanel.add(btnAddUser);
+        JButton btnAddPerson = new JButton("➕ Crear Usuario");
+        btnAddPerson.setBackground(new Color(66, 139, 202));
+        btnAddPerson.setForeground(Color.WHITE);
+        topPanel.add(btnAddPerson);
         panel.add(topPanel, BorderLayout.NORTH);
         
-        String[] columns = {"Username", "Nombre Completo"};
-        userTableModel = new DefaultTableModel(columns, 0) {
+        String[] columns = {"ID", "Username", "Nombre Completo", "Rol Scrum"};
+        personTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
-        JTable userTable = new JTable(userTableModel);
-        userTable.setRowHeight(25);
+        JTable personTable = new JTable(personTableModel);
+        styleTable(personTable);
         
-        panel.add(new JScrollPane(userTable), BorderLayout.CENTER);
+        panel.add(new JScrollPane(personTable), BorderLayout.CENTER);
         
-        refreshUserTable();
+        refreshPersonTable();
         
-        btnAddUser.addActionListener(e -> {
+        btnAddPerson.addActionListener(e -> {
             JTextField txtUser = new JTextField();
             JTextField txtName = new JTextField();
-            
             preventNumbers(txtUser);
             preventNumbers(txtName);
             
+            List<TypePerson> roles = taskManager.getTypePersons();
+            JComboBox<TypePerson> cbRole = new JComboBox<>(roles.toArray(new TypePerson[0]));
+            
             Object[] message = {
                 "Username (sin números):", txtUser,
-                "Nombre Completo (sin números):", txtName
+                "Nombre Completo (sin números):", txtName,
+                "Rol Scrum:", cbRole
             };
             
             int option = JOptionPane.showConfirmDialog(this, message, "Nuevo Usuario", JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
                 if (!txtUser.getText().trim().isEmpty() && !txtName.getText().trim().isEmpty()) {
-                    // USO DEL MODELO Y SERVICIO: 
-                    // 1. Creamos un nuevo objeto del modelo User.
-                    // 2. Se lo pasamos al TaskManager para que lo guarde en la memoria central.
-                    taskManager.addUser(new User(txtUser.getText().trim(), txtName.getText().trim()));
-                    refreshUserTable();
+                    TypePerson selectedRole = (TypeRoleSelected(cbRole));
+                    taskManager.addPerson(new Person(txtUser.getText().trim(), txtName.getText().trim(), selectedRole));
+                    refreshPersonTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Ambos campos son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Nombre y Username son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -131,36 +159,46 @@ public class App extends JFrame {
         return panel;
     }
     
-    private void refreshUserTable() {
-        userTableModel.setRowCount(0);
-        for (User u : taskManager.getUsers()) {
-            userTableModel.addRow(new Object[]{u.getUsername(), u.getName()});
+    private TypePerson TypeRoleSelected(JComboBox<TypePerson> cbRole) {
+        return (TypePerson) cbRole.getSelectedItem();
+    }
+    
+    private void refreshPersonTable() {
+        personTableModel.setRowCount(0);
+        for (Person p : taskManager.getPersons()) {
+            String roleName = p.getTypePerson() != null ? p.getTypePerson().getName() : "Sin Rol";
+            personTableModel.addRow(new Object[]{p.getId(), p.getUsername(), p.getName(), roleName});
         }
     }
     
     private JPanel createTaskPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
         
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton btnAddTask = new JButton("Crear Tarea");
-        JButton btnChangeStatus = new JButton("Cambiar Estado");
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JButton btnAddTask = new JButton("➕ Crear Tarea");
+        btnAddTask.setBackground(new Color(92, 184, 92));
+        btnAddTask.setForeground(Color.WHITE);
+        
+        JButton btnChangeStatus = new JButton("🔄 Cambiar Estado");
         topPanel.add(btnAddTask);
         topPanel.add(btnChangeStatus);
         panel.add(topPanel, BorderLayout.NORTH);
         
-        String[] columns = {"ID", "Título", "Descripción", "Prioridad", "Usuario", "Estado"};
+        String[] columns = {"ID", "Título", "Descripción", "Prioridad", "Usuario Asignado", "Estado"};
         taskTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
         JTable taskTable = new JTable(taskTableModel);
-        taskTable.setRowHeight(25);
+        styleTable(taskTable);
         panel.add(new JScrollPane(taskTable), BorderLayout.CENTER);
         
         refreshTaskTable();
         
         btnAddTask.addActionListener(e -> {
-            if (taskManager.getUsers().isEmpty()) {
+            List<Person> persons = taskManager.getPersons();
+            if (persons.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Debe crear al menos un usuario primero.");
                 return;
             }
@@ -168,29 +206,24 @@ public class App extends JFrame {
             JTextField txtTitle = new JTextField();
             JTextField txtDesc = new JTextField();
             
-            preventNumbers(txtTitle);
-            preventNumbers(txtDesc);
-            
             JComboBox<Priority> cbPriority = new JComboBox<>(Priority.values());
-            JComboBox<User> cbUser = new JComboBox<>(taskManager.getUsers().toArray(new User[0]));
+            JComboBox<Person> cbPerson = new JComboBox<>(persons.toArray(new Person[0]));
             
             Object[] message = {
-                "Título (sin números):", txtTitle,
-                "Descripción (sin números):", txtDesc,
+                "Título:", txtTitle,
+                "Descripción:", txtDesc,
                 "Prioridad:", cbPriority,
-                "Asignar a:", cbUser
+                "Asignar a:", cbPerson
             };
             
             int option = JOptionPane.showConfirmDialog(this, message, "Nueva Tarea", JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
                 if (!txtTitle.getText().trim().isEmpty()) {
-                    // CONEXIÓN CON MODELOS: Usamos la prioridad y el usuario seleccionados en la UI
-                    // para construir un objeto complejo (Task) y guardarlo mediante el gestor.
                     Task task = new Task(
                         txtTitle.getText().trim(),
                         txtDesc.getText().trim(),
                         (Priority) cbPriority.getSelectedItem(),
-                        (User) cbUser.getSelectedItem()
+                        (Person) cbPerson.getSelectedItem()
                     );
                     taskManager.addTask(task);
                     refreshTaskTable();
@@ -218,6 +251,7 @@ public class App extends JFrame {
                 int option = JOptionPane.showConfirmDialog(this, message, "Cambiar Estado", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
                     task.setStatus((Status) cbStatus.getSelectedItem());
+                    taskManager.updateTaskStatus(task);
                     refreshTaskTable();
                 }
             }
@@ -229,23 +263,21 @@ public class App extends JFrame {
     private void refreshTaskTable() {
         taskTableModel.setRowCount(0);
         for (Task t : taskManager.getTasks()) {
+            String assigned = t.getAssignedPerson() != null ? t.getAssignedPerson().getName() : "N/A";
             taskTableModel.addRow(new Object[]{
                 t.getId(), t.getTitle(), t.getDescription(), t.getPriority(), 
-                t.getAssignedUser().getUsername(), t.getStatus().getDescription()
+                assigned, t.getStatus().getDescription()
             });
         }
     }
     
-    /**
-     * Configura el Tablero Kanban utilizando un GridLayout para distribuir las 3 columnas uniformemente.
-     */
     private JPanel createKanbanPanel() {
-        JPanel panel = new JPanel(new GridLayout(1, 3, 10, 10)); 
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(1, 3, 20, 0)); 
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
         
-        kanbanTodoPanel = createKanbanColumn("POR REALIZAR");
-        kanbanInProgressPanel = createKanbanColumn("EN PROCESO");
-        kanbanDonePanel = createKanbanColumn("FINALIZADO");
+        kanbanTodoPanel = createKanbanColumn("📌 POR REALIZAR", new Color(220, 235, 252));
+        kanbanInProgressPanel = createKanbanColumn("⏳ EN PROCESO", new Color(252, 243, 207));
+        kanbanDonePanel = createKanbanColumn("✅ FINALIZADO", new Color(212, 239, 223));
         
         panel.add(kanbanTodoPanel);
         panel.add(kanbanInProgressPanel);
@@ -254,18 +286,35 @@ public class App extends JFrame {
         return panel;
     }
     
-    private JPanel createKanbanColumn(String title) {
-        JPanel colPanel = new JPanel(new BorderLayout());
-        colPanel.setBorder(BorderFactory.createTitledBorder(title)); 
+    private JPanel createKanbanColumn(String title, Color bgColor) {
+        JPanel colPanel = new JPanel(new BorderLayout(0, 10));
+        colPanel.setBackground(bgColor);
         
+        // Header de la columna
+        JLabel lblHeader = new JLabel(title, SwingConstants.CENTER);
+        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblHeader.setOpaque(true);
+        lblHeader.setBackground(bgColor.darker());
+        lblHeader.setForeground(new Color(50, 50, 50));
+        lblHeader.setBorder(new EmptyBorder(10, 0, 10, 0));
+        
+        colPanel.add(lblHeader, BorderLayout.NORTH);
+        
+        // Contenido de la columna
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); 
-        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBackground(bgColor);
+        contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16); 
+        scrollPane.setBorder(null);
+        scrollPane.setBackground(bgColor);
         
         colPanel.add(scrollPane, BorderLayout.CENTER);
+        
+        // Bordes redondeados para la columna
+        colPanel.setBorder(BorderFactory.createLineBorder(bgColor.darker(), 1, true));
         
         return colPanel;
     }
@@ -277,30 +326,52 @@ public class App extends JFrame {
     }
     
     private void fillKanbanColumn(JPanel columnPanel, Status status) {
-        JScrollPane scrollPane = (JScrollPane) columnPanel.getComponent(0);
+        JScrollPane scrollPane = (JScrollPane) columnPanel.getComponent(1);
         JPanel contentPanel = (JPanel) scrollPane.getViewport().getView();
         
         contentPanel.removeAll();
         
         List<Task> tasks = taskManager.getTasksByStatus(status);
         for (Task t : tasks) {
-            JPanel card = new JPanel(new BorderLayout());
+            JPanel card = new JPanel(new BorderLayout(5, 5));
+            
+            // Color según prioridad
+            Color priorityColor;
+            switch(t.getPriority()) {
+                case ALTA: priorityColor = new Color(255, 100, 100); break;
+                case MEDIA: priorityColor = new Color(255, 180, 50); break;
+                case BAJA: priorityColor = new Color(100, 200, 100); break;
+                default: priorityColor = Color.LIGHT_GRAY;
+            }
             
             card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                BorderFactory.createMatteBorder(0, 5, 0, 0, priorityColor),
+                new EmptyBorder(12, 12, 12, 12)
             ));
-            card.setBackground(new Color(245, 245, 250));
-            card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+            card.setBackground(Color.WHITE);
+            card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
             
-            JLabel lblTitle = new JLabel("<html><b>" + t.getTitle() + "</b></html>");
-            JLabel lblDetails = new JLabel(t.getAssignedUser().getUsername() + " | Prioridad: " + t.getPriority());
+            JLabel lblTitle = new JLabel("<html><b style='font-size:11px;'>" + t.getTitle() + "</b></html>");
+            String personName = t.getAssignedPerson() != null ? t.getAssignedPerson().getName() : "N/A";
+            
+            JLabel lblPerson = new JLabel("👤 " + personName);
+            lblPerson.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            lblPerson.setForeground(Color.GRAY);
+            
+            JLabel lblPriority = new JLabel(t.getPriority().name());
+            lblPriority.setFont(new Font("Segoe UI", Font.BOLD, 10));
+            lblPriority.setForeground(priorityColor.darker());
+            
+            JPanel southPanel = new JPanel(new BorderLayout());
+            southPanel.setBackground(Color.WHITE);
+            southPanel.add(lblPerson, BorderLayout.WEST);
+            southPanel.add(lblPriority, BorderLayout.EAST);
             
             card.add(lblTitle, BorderLayout.NORTH);
-            card.add(lblDetails, BorderLayout.SOUTH);
+            card.add(southPanel, BorderLayout.SOUTH);
             
             contentPanel.add(card);
-            contentPanel.add(Box.createRigidArea(new Dimension(0, 10))); 
+            contentPanel.add(Box.createRigidArea(new Dimension(0, 15))); 
         }
         
         contentPanel.revalidate();
@@ -308,50 +379,59 @@ public class App extends JFrame {
     }
     
     private JPanel createMyTasksPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
         
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         topPanel.add(new JLabel("Seleccionar Usuario:"));
         
-        JComboBox<User> cbUser = new JComboBox<>();
-        JButton btnView = new JButton("Ver Tareas");
+        JComboBox<Person> cbPerson = new JComboBox<>();
+        cbPerson.setPreferredSize(new Dimension(250, 30));
+        JButton btnView = new JButton("👁 Ver Tareas");
+        btnView.setBackground(new Color(91, 192, 222));
+        btnView.setForeground(Color.WHITE);
         
-        topPanel.add(cbUser);
+        topPanel.add(cbPerson);
         topPanel.add(btnView);
         panel.add(topPanel, BorderLayout.NORTH);
         
         JTextArea txtArea = new JTextArea();
         txtArea.setEditable(false);
-        txtArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        txtArea.setMargin(new Insets(10, 10, 10, 10));
+        txtArea.setFont(new Font("Monospaced", Font.PLAIN, 15));
+        txtArea.setMargin(new Insets(15, 15, 15, 15));
+        txtArea.setBackground(new Color(250, 250, 250));
         
         panel.add(new JScrollPane(txtArea), BorderLayout.CENTER);
         
         tabbedPane.addChangeListener(e -> {
             if (tabbedPane.getSelectedComponent() == panel) {
-                User selected = (User) cbUser.getSelectedItem();
-                cbUser.removeAllItems();
-                for (User u : taskManager.getUsers()) {
-                    cbUser.addItem(u);
+                Person selected = (Person) cbPerson.getSelectedItem();
+                cbPerson.removeAllItems();
+                for (Person p : taskManager.getPersons()) {
+                    cbPerson.addItem(p);
                 }
                 if (selected != null) {
-                    cbUser.setSelectedItem(selected);
+                    cbPerson.setSelectedItem(selected);
                 }
             }
         });
         
         btnView.addActionListener(e -> {
-            User selected = (User) cbUser.getSelectedItem();
+            Person selected = (Person) cbPerson.getSelectedItem();
             if (selected != null) {
                 List<Task> userTasks = taskManager.getTasksByUserOrderedByPriority(selected);
                 StringBuilder sb = new StringBuilder();
                 if (userTasks.isEmpty()) {
                     sb.append("No hay tareas asignadas para este usuario.\n");
                 } else {
-                    sb.append("Tareas de ").append(selected.getName()).append(":\n");
-                    sb.append("--------------------------------------------------\n\n");
+                    sb.append("📅 Tareas de ").append(selected.getName()).append(":\n");
+                    sb.append("==================================================\n\n");
                     for (Task t : userTasks) {
-                        sb.append(t.toString()).append("\n"); 
+                        sb.append("▪ ").append(t.getTitle())
+                          .append("\n  Prioridad: ").append(t.getPriority())
+                          .append(" | Estado: ").append(t.getStatus())
+                          .append("\n  Detalle: ").append(t.getDescription())
+                          .append("\n\n"); 
                     }
                 }
                 txtArea.setText(sb.toString());
@@ -363,8 +443,8 @@ public class App extends JFrame {
 
     public static void main(String[] args) {
         try {
-            // Establece la apariencia visual de la GUI para que coincida con el sistema operativo nativo.
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            // Activar FlatLaf para interfaz moderna
+            UIManager.setLookAndFeel(new FlatIntelliJLaf());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,27 +1,38 @@
 package model;
 
 public class Task {
-    private static int nextId = 1;
-
     private int id;
     private String title;
     private String description;
     private Priority priority;
     private Status status;
-    private User assignedUser;
+    private Person assignedPerson;
 
-    // Constructor: Inicializa una tarea nueva. Toda tarea nace por defecto en estado 'POR_REALIZAR'.
-    public Task(String title, String description, Priority priority, User assignedUser) {
-        this.id = nextId++;
+    // Constructor completo (al cargar de BD)
+    public Task(int id, String title, String description, Priority priority, Status status, Person assignedPerson) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.priority = priority;
+        this.status = status;
+        this.assignedPerson = assignedPerson;
+    }
+
+    // Constructor para tareas nuevas
+    public Task(String title, String description, Priority priority, Person assignedPerson) {
         this.title = title;
         this.description = description;
         this.priority = priority;
         this.status = Status.POR_REALIZAR;
-        this.assignedUser = assignedUser;
+        this.assignedPerson = assignedPerson;
     }
 
     public int getId() {
         return id;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -56,17 +67,17 @@ public class Task {
         this.status = status;
     }
 
-    public User getAssignedUser() {
-        return assignedUser;
+    public Person getAssignedPerson() {
+        return assignedPerson;
     }
 
-    public void setAssignedUser(User assignedUser) {
-        this.assignedUser = assignedUser;
+    public void setAssignedPerson(Person assignedPerson) {
+        this.assignedPerson = assignedPerson;
     }
 
     @Override
     public String toString() {
         return String.format("[%d] %s (Prioridad: %s) - Estado: %s - Asignado a: %s",
-                id, title, priority, status, assignedUser != null ? assignedUser.getName() : "Sin asignar");
+                id, title, priority, status, assignedPerson != null ? assignedPerson.getName() : "Sin asignar");
     }
 }
