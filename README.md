@@ -1,84 +1,85 @@
-# TaskFlow - Sistema Profesional de Gestion de Tareas
+# TaskFlow - Sistema Profesional de Gestión de Tareas Scrum
 
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)
 ![Swing](https://img.shields.io/badge/Java_Swing-GUI-blue?style=for-the-badge)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
 
-## Descripcion
-TaskFlow es una solucion de software orientada a la gestion eficiente de proyectos y tareas. Diseñado para equipos que buscan un control de flujo de trabajo agil, el sistema permite la creacion, asignacion y seguimiento de actividades mediante un modelo de datos robusto y una moderna interfaz grafica basada en Java Swing.
+## Descripción
+TaskFlow es una solución de software orientada a la gestión eficiente de proyectos y tareas bajo la metodología **Scrum**. Diseñado para equipos que buscan un control de flujo de trabajo ágil, el sistema permite la creación, asignación y seguimiento de actividades mediante una base de datos robusta relacional (SQLite) y una moderna interfaz gráfica en Java Swing potenciada con **FlatLaf**.
 
 ## Objetivos
-- Centralizar la informacion de las tareas para eliminar la ambigüedad en las responsabilidades del equipo.
-- Proporcionar una herramienta visual, interactiva y facil de usar mediante un Tablero Kanban (Por Realizar, En Proceso, Finalizado).
-- Garantizar la integridad de los datos mediante validaciones en tiempo real y tipado estricto (uso de enumeraciones para prioridades y estados).
-- Mantener una arquitectura escalable que permita futuras expansiones del proyecto.
+- Centralizar la información de las tareas para eliminar la ambigüedad en las responsabilidades del equipo.
+- Integrar roles de Scrum (Product Owner, Scrum Master, Developer) a los usuarios del sistema.
+- Proporcionar una herramienta visual, interactiva y fácil de usar mediante un Tablero Kanban (Por Realizar, En Proceso, Finalizado).
+- Asegurar la **persistencia de los datos** utilizando una base de datos local SQLite.
 
-## Caracteristicas Principales
-- Interfaz Grafica (GUI) Moderna: Uso de Java Swing (JFrame, JTable, JTabbedPane) para ofrecer una experiencia fluida de ventana unica.
-- Tablero Kanban Visual: Vista dinamica de 3 columnas para clasificar el avance de las tareas segun su estado.
-- Validacion de Datos en Tiempo Real: Bloqueo inteligente de caracteres numericos en campos de texto de nombres usando eventos de teclado.
-- Gestion Avanzada: Asignacion directa de tareas a usuarios y listados personalizados ordenados por prioridad (Alta, Media, Baja).
-- Diseño Nativo: Integracion del estilo visual del sistema operativo host para una apariencia profesional.
+## Modelado de Base de Datos y Diagramas
+
+Para lograr una correcta persistencia y escalabilidad, el sistema ha sido diseñado bajo un modelo de Entidad-Relación estructurado en 7 tablas principales. A continuación se presentan los esquemas gráficos del modelo relacional generados con diferentes herramientas:
+
+### 1. Modelo Entidad-Relación Tradicional (Notación de Chen)
+En este diagrama visualizamos las entidades (cuadrados), sus relaciones (rombos) y sus atributos (círculos).
+![Diagrama Entidad-Relación](img/entidad-relacion}.png)
+*Explica cómo los usuarios (`person`) tienen un rol (`type_person`), pertenecen a un equipo (`team`) y se les asignan tareas (`task`) que a su vez tienen un estado (`status_task`).*
+
+### 2. Esquema Relacional en Draw.io
+![Diagrama en Draw.io](img/draw.io.png)
+*Este diagrama muestra la estructura de las tablas generadas al importar nuestro script SQL directamente en Draw.io, definiendo las llaves primarias e identificadores básicos.*
+
+### 3. Modelo Estructural en DrawSQL
+![Diagrama en DrawSQL](img/draw.sql.png)
+*Una vista mucho más técnica que resalta explícitamente las Llaves Foráneas (Foreign Keys) y cómo interactúan las tablas puente (`team_person` y `assement_task`) para resolver las relaciones de muchos a muchos.*
 
 ## Arquitectura del Sistema
-El sistema ha sido estructurado bajo el principio de Separacion de Responsabilidades (SoC), dividiendo la logica de negocio y la interfaz de usuario:
+El sistema divide claramente la vista, los modelos y la capa de acceso a base de datos:
 
 ```text
 proyecto_java/
 ├── bin/                 # Archivos compilados (.class)
-├── src/                 # Codigo fuente
-│   ├── model/           # Entidades y enumeraciones
-│   │   ├── Priority.java
-│   │   ├── Status.java
-│   │   ├── Task.java
-│   │   └── User.java
-│   ├── service/         # Logica de negocio
-│   │   └── TaskManager.java
+├── img/                 # Capturas y diagramas de arquitectura
+├── lib/                 # Librerías externas (.jar)
+│   ├── flatlaf.jar      # Tema moderno de UI
+│   └── sqlite-jdbc.jar  # Driver de base de datos
+├── src/                 # Código fuente
+│   ├── model/           # Entidades (Person, Task, Team...)
+│   ├── service/         # Lógica de negocio y conexión (TaskManager, DatabaseConnection)
 │   └── App.java         # Controlador Principal (GUI)
+├── schema.sql           # Script de creación de base de datos
 └── README.md
 ```
 
-- model/: Contiene las entidades principales (Task, User) y los enumerados (Priority, Status) que actuan como fuente unica de verdad para clasificaciones.
-- service/: Implementa la logica de negocio en la clase TaskManager, centralizando la manipulacion, guardado y filtrado de datos.
-- App.java: Actua como el controlador principal de la Interfaz Grafica (Vista), agrupando la logica de componentes graficos y enlazando los eventos de los usuarios con el servicio.
-
-## Tecnologias
-- Lenguaje Base: Java SE
-- Librerias UI: Java Swing & AWT
-- Entorno de Desarrollo (IDE): Visual Studio Code / IntelliJ IDEA
-- Control de Versiones: Git & GitHub
-- Estandares de Codigo: JavaDoc y Conventional Commits.
-
-## Instrucciones de Instalacion y Uso
+## Instrucciones de Instalación y Uso
 
 ### Prerrequisitos
-- Tener instalado el JDK de Java (Version 8 o superior).
-- Contar con Git configurado en tu sistema.
+- Tener instalado el JDK de Java (Versión 8 o superior).
+- Las librerías de `sqlite-jdbc` y `flatlaf` ya están incluidas en la carpeta `lib/`.
 
-### Pasos para ejecucion local
+### Pasos para ejecución local
 
 1. Clonar el repositorio
    ```bash
-   git clone https://github.com/santiagoosorio0708e-wq/proyecto_java.git
+   git clone https://github.com/santiagoosorio0708e-wq/gestion-tareas-base-datos-Scrum.git
    cd "proyecto java"
    ```
 
-2. Compilar el codigo fuente
-   Posicionado en la raiz del proyecto, ejecuta el siguiente comando para compilar las clases (se guardaran en la carpeta bin):
+2. Compilar el código fuente
+   Posicionado en la raíz del proyecto, ejecuta el siguiente comando para compilar las clases incluyendo las librerías:
    ```bash
-   javac -d bin -sourcepath src src/App.java
+   javac -cp "lib/sqlite-jdbc.jar;lib/flatlaf.jar" -d bin src/*.java src/model/*.java src/service/*.java
    ```
 
-3. Iniciar la aplicacion
+3. Iniciar la aplicación
    ```bash
-   java -cp bin App
+   java -cp "bin;lib/sqlite-jdbc.jar;lib/flatlaf.jar" App
    ```
+*(Nota: En sistemas Linux/Mac, reemplaza el punto y coma `;` por dos puntos `:` en el comando del classpath).*
 
 ## Contribuciones
-Proyecto colaborativo desarrollado con enfoque en buenas practicas de versionado y codigo limpio.
+Proyecto colaborativo desarrollado con enfoque en buenas prácticas de versionado y código limpio.
 
 - Santiago Osorio
 - Daniel Jaimes Gamboa
 
 ## Licencia
-Proyecto de caracter academico.
+Proyecto de carácter académico.
